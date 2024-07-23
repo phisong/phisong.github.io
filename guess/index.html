@@ -1,0 +1,224 @@
+
+
+<!DOCTYPE HTML>
+<html>
+<head> 
+    <meta charset="utf-8">
+    <style type="text/css">
+    button {
+      display: inline-block;
+      padding: 7px 10px;
+      background-color: CadetBlue;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 10px;
+      font-size: 14px;
+      border: none;
+      cursor: pointer;
+    }
+
+    /* Font Styles */
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
+      color: #333;
+    }
+
+    h1, h2, h3 {
+      font-family: "Helvetica Neue", Arial, sans-serif;
+    }
+    /* Additional Common Styles */
+    a {
+      color: #3498db;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .showList{
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .monoText{
+      font-family: Consolas, monospace;
+      font-size: 14px;
+    }
+    .infoItem {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+    label {
+      margin-right: 10px;
+      text-align: right;
+    }
+
+    input {
+      flex-grow: 1;
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    li{
+        margin-bottom: 5px;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+    .row {
+      display: flex;
+    }
+    .boxSize {
+      box-sizing: border-box;
+      width: 352px;
+      padding: 5px;
+      border: 1px solid #ccc;
+    }
+    </style>
+</head>
+<body>
+  <h1> 猜歌名工具 汉化 by DPRKorea</h1>
+    <div>
+      <a href ="compilationfail.github.io/guide/猜歌名工具使用指南/"> User Guide | 使用指南 </a>
+        <h2>待猜曲目列表</h2>
+        <div class="showList" style="margin-left:20px">
+          <div class="row">
+            <label style="width:70px">展示原歌名</label>
+            <label style="width:340px"> &nbsp;</label>
+            <label style="width:40px">删除</label>
+            <label style="width:40px">隐藏</label>
+          </div>
+            <ol id="listbox">
+            </ol>
+            <button onclick="add()"> + </button>
+            <input type="checkbox" onclick="selectAll()" id="ALL">
+            <button onclick="sort_by_length()">按长度排序</button>
+        </div>
+        <br>
+        <h2>输出  <button onclick="toClipboard()"> Copy to Clipboard </button> </h2>
+        <div class="showList" style="margin-left:20px">
+            <label id="output" class="monoText">  </label>
+        </div>
+        <br>
+        <div>
+            <label><strong>guess</strong></label>
+            <input type="text" id="guess" size="50">
+            <button onclick="refresh()"> refresh </button>
+            <input type="checkbox" onchange="refresh()" id="sort">
+            <label>auto sort</label>
+        </div>
+        <br>
+        <div class="showList">
+            <label> Import from text (will clear existing items)  </label>
+            <p> </p>
+            <textarea id="importBox" cols="50" rows="20" placeholder="">1. xxx</textarea>
+            <p> </p>
+            <button onclick="import_from_output()"> Import </button>
+        </div>
+    </div>
+
+    <script>
+        const listbox = document.getElementById("listbox");
+        var tempcount = 0;
+        const songs = document.getElementById("songs");
+        const guessbox = document.getElementById("guess");
+        const output = document.getElementById("output");
+        const importBox = document.getElementById("importBox");
+        const sortOption = document.getElementById("sort");
+        refresh = () => {
+            console.log('changed');
+            if(sortOption.checked) guessbox.value = guessbox.value.split("").sort().join("");
+            const f = ' ' + guessbox.value.toLowerCase();
+            function filter(s) {
+                console.log("filter", s);
+                var t = "";
+                for(const c of s) {
+                    if(f.indexOf(c.toLowerCase()) != -1) {
+                        t += c;
+                    } else t += '*';
+                }
+               return t;
+            }
+            var result = `guessed:${f}\n`, count = 0;
+            for(const l of listbox.childNodes) if(l.tagName == "LI") {
+                count++;
+                // console.log(l.childNodes);
+                if(l.childNodes[5].checked) continue;
+                const a = l.childNodes[0].checked;
+                const b = l.childNodes[2].value;
+                result += `${count}. `;
+                if(a) result += b;
+                else result += filter(b);
+                result += "\n";
+            }
+            output.innerText = result;
+        };
+        function add() {
+            tempcount++;
+            let t = document.createElement('li');
+            t.id = tempcount.toString();
+            t.style = "width: 530px;";
+            t.innerHTML = `<input type="checkbox" onchange="refresh()"> <input type="text" onchange="refresh()" size="40" class="boxSize monoText"><button onclick="remove(${tempcount})" style="margin-left:20px; margin-right:20px"> x </button> &nbsp;<input type="checkbox" onchange="refresh()">`;
+            listbox.appendChild(t);
+        }
+        function remove(id) {
+            document.getElementById(id.toString()).remove();
+            refresh();
+        }
+        guessbox.onchange = refresh;
+        function import_from_output() {
+            listbox.innerHTML = "";
+            const s = importBox.value;
+            localStorage['songlist'] = s;
+            for(const l of s.split('\n')) if(l.trim() != "") {
+                const a = l.split('.')[0];
+                if(isNaN(parseInt(a))) continue;
+                const t = l.slice(a.length + 1).trim();
+                add();
+                listbox.lastChild.childNodes[2].value = t;
+            }
+            refresh();
+        };
+        function toClipboard() {
+          navigator.clipboard.writeText(output.innerText);
+        };
+        function selectAll() {
+            const ALL = document.getElementById("ALL");
+            for(const l of listbox.childNodes) if(l.tagName == "LI") {
+                l.childNodes[0].checked = ALL.checked;
+            }
+            refresh();
+        }
+        function sort_by_length() {
+            var lis = [];
+            while(1) {
+                const l = listbox.lastChild;
+                if(l && l.tagName == "LI") {
+                    lis.push(l);
+                    // console.log("child", l);
+                    l.remove();
+                } else break;
+            }
+            // console.log(lis);
+            for(var i = 0; i < lis.length; i++) {
+                for(var j = i + 1; j < lis.length; ++j) {
+                    if(lis[i].childNodes[2].value.length > lis[j].childNodes[2].value.length) {
+                        [lis[i], lis[j]] = [lis[j], lis[i]];
+                    }
+                }
+            }
+            for(const l of lis) {
+                listbox.appendChild(l);
+            }
+            refresh();
+        }
+        window.onload = () => {
+          if(localStorage['songlist'] && typeof(localStorage['songlist']) == 'string') 
+              importBox.value = localStorage['songlist'];
+              import_from_output();
+        };
+    </script>
+<body>
+</html>
