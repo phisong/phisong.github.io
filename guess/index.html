@@ -81,7 +81,6 @@
 <body>
   <h1> 猜歌名工具 汉化 by DPRKorea</h1>
     <div>
-      <a href ="compilationfail.github.io/guide/猜歌名工具使用指南/"> User Guide | 使用指南 </a>
         <h2>待猜曲目列表</h2>
         <div class="showList" style="margin-left:20px">
           <div class="row">
@@ -92,30 +91,30 @@
           </div>
             <ol id="listbox">
             </ol>
-            <button onclick="add()"> + </button>
+            <button onclick="add()"> 添加 </button>
             <input type="checkbox" onclick="selectAll()" id="ALL">
             <button onclick="sort_by_length()">按长度排序</button>
         </div>
         <br>
-        <h2>输出  <button onclick="toClipboard()"> Copy to Clipboard </button> </h2>
+        <h2>输出  <button onclick="toClipboard()"> 复制到剪贴板 </button> </h2>
         <div class="showList" style="margin-left:20px">
             <label id="output" class="monoText">  </label>
         </div>
         <br>
         <div>
-            <label><strong>guess</strong></label>
+            <label><strong>要开的字母</strong></label>
             <input type="text" id="guess" size="50">
-            <button onclick="refresh()"> refresh </button>
+            <button onclick="refresh()"> 刷新 </button>
             <input type="checkbox" onchange="refresh()" id="sort">
-            <label>auto sort</label>
+            <label>自动排序</label>
         </div>
         <br>
         <div class="showList">
-            <label> Import from text (will clear existing items)  </label>
+            <label> 从文本导入 (会清除原有项目)  </label>
             <p> </p>
             <textarea id="importBox" cols="50" rows="20" placeholder="">1. xxx</textarea>
             <p> </p>
-            <button onclick="import_from_output()"> Import </button>
+            <button onclick="import_from_output()"> 导入 </button>
         </div>
     </div>
 
